@@ -23,6 +23,7 @@ import 'package:flauncher/gradients.dart';
 import 'package:flauncher/providers/settings_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -70,6 +71,15 @@ class WallpaperService extends ChangeNotifier {
       _wallpaper = MemoryImage(bytes);
       notifyListeners();
     }
+  }
+
+  Future<void> setWallpaperFromAsset(String assetKey) async {
+    ByteData data = await rootBundle.load(assetKey);
+    Uint8List bytes = data.buffer.asUint8List();
+    await _wallpaperFile.writeAsBytes(bytes);
+
+    _wallpaper = MemoryImage(bytes);
+    notifyListeners();
   }
 
   Future<void> setGradient(FLauncherGradient fLauncherGradient) async {
