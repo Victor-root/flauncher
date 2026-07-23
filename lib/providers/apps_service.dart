@@ -366,6 +366,10 @@ class AppsService extends ChangeNotifier
 
   Future<bool> isDefaultLauncher() => _fLauncherChannel.isDefaultLauncher();
 
+  Future<String> getDefaultLauncherPackage() => _fLauncherChannel.getDefaultLauncherPackage();
+
+  Future<void> openHomeSettings() => _fLauncherChannel.openHomeSettings();
+
   Future<void> startAmbientMode() => _fLauncherChannel.startAmbientMode();
 
   Future<void> addToCategory(App app, Category category, {bool shouldNotifyListeners = true}) async {

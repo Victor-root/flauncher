@@ -18,6 +18,7 @@
 
 import 'package:flauncher/widgets/right_panel_dialog.dart';
 import 'package:flauncher/widgets/settings/applications_panel_page.dart';
+import 'package:flauncher/widgets/settings/default_launcher_panel_page.dart';
 import 'package:flauncher/widgets/settings/launcher_sections_panel_page.dart';
 import 'package:flauncher/widgets/settings/gradient_panel_page.dart';
 import 'package:flauncher/widgets/settings/launcher_section_panel_page.dart';
@@ -60,6 +61,8 @@ class _SettingsPanelState extends State<SettingsPanel> {
                 return MaterialPageRoute(builder: (_) => GradientPanelPage());
               case ApplicationsPanelPage.routeName:
                 return MaterialPageRoute(builder: (_) => ApplicationsPanelPage());
+              case DefaultLauncherPanelPage.routeName:
+                return MaterialPageRoute(builder: (_) => const DefaultLauncherPanelPage());
               case LauncherSectionsPanelPage.routeName:
                 return MaterialPageRoute(builder: (_) => LauncherSectionsPanelPage());
               case LauncherSectionPanelPage.routeName:

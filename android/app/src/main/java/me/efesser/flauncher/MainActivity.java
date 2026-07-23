@@ -83,6 +83,8 @@ public class MainActivity extends FlutterActivity
                 case "openAppInfo" -> result.success(openAppInfo(call.arguments()));
                 case "uninstallApp" -> result.success(uninstallApp(call.arguments()));
                 case "isDefaultLauncher" -> result.success(isDefaultLauncher());
+                case "getDefaultLauncherPackage" -> result.success(getDefaultLauncherPackage());
+                case "openHomeSettings" -> result.success(openHomeSettings());
                 case "checkForGetContentAvailability" -> result.success(checkForGetContentAvailability());
                 case "startAmbientMode" -> result.success(startAmbientMode());
                 case "getActiveNetworkInformation" -> result.success(getActiveNetworkInformation());
@@ -450,6 +452,22 @@ public class MainActivity extends FlutterActivity
         }
 
         return false;
+    }
+
+    private String getDefaultLauncherPackage() {
+        Intent intent = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME);
+        ResolveInfo defaultLauncher = getPackageManager().resolveActivity(intent, 0);
+
+        if (defaultLauncher != null && defaultLauncher.activityInfo != null) {
+            return defaultLauncher.activityInfo.packageName;
+        }
+
+        return "";
+    }
+
+    private boolean openHomeSettings() {
+        // ACTION_HOME_SETTINGS opens the system "Home app" screen on devices that expose it.
+        return tryStartActivity(new Intent("android.settings.HOME_SETTINGS"));
     }
 
     private boolean startAmbientMode()

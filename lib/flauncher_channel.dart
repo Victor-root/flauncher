@@ -60,6 +60,13 @@ class FLauncherChannel {
 
   Future<bool> isDefaultLauncher() async => await _methodChannel.invokeMethod('isDefaultLauncher');
 
+  Future<String> getDefaultLauncherPackage() async {
+    String? package = await _methodChannel.invokeMethod('getDefaultLauncherPackage');
+    return package ?? "";
+  }
+
+  Future<void> openHomeSettings() async => await _methodChannel.invokeMethod('openHomeSettings');
+
   Future<bool> checkForGetContentAvailability() async =>
       await _methodChannel.invokeMethod("checkForGetContentAvailability");
 
