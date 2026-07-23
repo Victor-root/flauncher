@@ -164,6 +164,27 @@ class ApplicationInfoPanel extends StatelessWidget
                        await context.read<AppsService>().uninstallApp(application);
                        Navigator.of(context).pop(ApplicationInfoPanelResult.none);
                      },
+                   ),
+                   FutureBuilder<bool>(
+                     future: context.read<AppsService>().shizukuHasPermission(),
+                     builder: (context, snapshot) {
+                       if (snapshot.data != true) {
+                         return const SizedBox.shrink();
+                       }
+                       return TextButton(
+                         child: Row(
+                           children: [
+                             const Icon(Icons.stop_circle_outlined),
+                             Container(width: 8),
+                             Text(localizations.forceStop, style: Theme.of(context).textTheme.bodyMedium),
+                           ],
+                         ),
+                         onPressed: () async {
+                           await context.read<AppsService>().forceStopViaShizuku(application.packageName);
+                           Navigator.of(context).pop(ApplicationInfoPanelResult.none);
+                         },
+                       );
+                     },
                    )
                  ]
                 )

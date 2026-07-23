@@ -370,6 +370,18 @@ class AppsService extends ChangeNotifier
 
   Future<void> openHomeSettings() => _fLauncherChannel.openHomeSettings();
 
+  Future<bool> shizukuAvailable() => _fLauncherChannel.shizukuAvailable();
+
+  Future<bool> shizukuHasPermission() => _fLauncherChannel.shizukuHasPermission();
+
+  Future<void> shizukuRequestPermission() => _fLauncherChannel.shizukuRequestPermission();
+
+  Future<String> disableLauncherViaShizuku(String packageName) =>
+      _fLauncherChannel.shizukuExecute(["pm", "disable-user", "--user", "0", packageName]);
+
+  Future<String> forceStopViaShizuku(String packageName) =>
+      _fLauncherChannel.shizukuExecute(["am", "force-stop", packageName]);
+
   Future<void> startAmbientMode() => _fLauncherChannel.startAmbientMode();
 
   Future<void> addToCategory(App app, Category category, {bool shouldNotifyListeners = true}) async {

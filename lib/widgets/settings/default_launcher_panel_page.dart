@@ -33,6 +33,8 @@ class DefaultLauncherPanelPage extends StatefulWidget {
 class _DefaultLauncherPanelPageState extends State<DefaultLauncherPanelPage> {
   bool? _isDefault;
   String _launcherPackage = "";
+  bool _shizukuAvailable = false;
+  bool _shizukuHasPermission = false;
 
   @override
   void initState() {
@@ -44,13 +46,34 @@ class _DefaultLauncherPanelPageState extends State<DefaultLauncherPanelPage> {
     AppsService appsService = context.read<AppsService>();
     bool isDefault = await appsService.isDefaultLauncher();
     String launcherPackage = isDefault ? "" : await appsService.getDefaultLauncherPackage();
+    bool shizukuAvailable = await appsService.shizukuAvailable();
+    bool shizukuHasPermission = shizukuAvailable && await appsService.shizukuHasPermission();
 
     if (mounted) {
       setState(() {
         _isDefault = isDefault;
         _launcherPackage = launcherPackage;
+        _shizukuAvailable = shizukuAvailable;
+        _shizukuHasPermission = shizukuHasPermission;
       });
     }
+  }
+
+  Future<void> _setDefaultViaShizuku() async {
+    AppLocalizations localizations = AppLocalizations.of(context)!;
+    await context.read<AppsService>().disableLauncherViaShizuku(_launcherPackage);
+
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(localizations.shizukuDone)));
+    await _refresh();
+  }
+
+  Future<void> _requestShizukuPermission() async {
+    await context.read<AppsService>().shizukuRequestPermission();
+    await _refresh();
   }
 
   @override
@@ -102,6 +125,34 @@ class _DefaultLauncherPanelPageState extends State<DefaultLauncherPanelPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(localizations.defaultLauncherInactive, style: Theme.of(context).textTheme.bodyMedium),
+        if (_shizukuHasPermission)
+          TextButton(
+            autofocus: true,
+            onPressed: hasPackage ? _setDefaultViaShizuku : null,
+            child: Row(
+              children: [
+                const Icon(Icons.bolt),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(localizations.defaultLauncherSetWithShizuku, style: Theme.of(context).textTheme.bodyMedium),
+                ),
+              ],
+            ),
+          )
+        else if (_shizukuAvailable)
+          TextButton(
+            autofocus: true,
+            onPressed: _requestShizukuPermission,
+            child: Row(
+              children: [
+                const Icon(Icons.bolt),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(localizations.grantShizukuPermission, style: Theme.of(context).textTheme.bodyMedium),
+                ),
+              ],
+            ),
+          ),
         const SizedBox(height: 12),
         Text(localizations.defaultLauncherInstructions, style: Theme.of(context).textTheme.bodySmall),
         if (hasPackage) ...[
@@ -114,7 +165,7 @@ class _DefaultLauncherPanelPageState extends State<DefaultLauncherPanelPage> {
         ],
         const Divider(),
         TextButton(
-          autofocus: true,
+          autofocus: !_shizukuAvailable,
           onPressed: () => context.read<AppsService>().openHomeSettings(),
           child: Row(
             children: [

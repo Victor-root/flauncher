@@ -62,10 +62,16 @@ public class MainActivity extends FlutterActivity
     private final String APPS_EVENT_CHANNEL = "me.efesser.flauncher/event_apps";
     private final String NETWORK_EVENT_CHANNEL = "me.efesser.flauncher/event_network";
 
+    private static final int SHIZUKU_PERMISSION_REQUEST_CODE = 1000;
+
+    private ShizukuManager _shizukuManager;
+
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine)
     {
         super.configureFlutterEngine(flutterEngine);
+
+        _shizukuManager = new ShizukuManager(this);
 
         BinaryMessenger messenger = flutterEngine.getDartExecutor().getBinaryMessenger();
 
@@ -88,6 +94,16 @@ public class MainActivity extends FlutterActivity
                 case "checkForGetContentAvailability" -> result.success(checkForGetContentAvailability());
                 case "startAmbientMode" -> result.success(startAmbientMode());
                 case "getActiveNetworkInformation" -> result.success(getActiveNetworkInformation());
+                case "shizukuAvailable" -> result.success(_shizukuManager.isAvailable());
+                case "shizukuHasPermission" -> result.success(_shizukuManager.hasPermission());
+                case "shizukuRequestPermission" -> {
+                    _shizukuManager.requestPermission(SHIZUKU_PERMISSION_REQUEST_CODE);
+                    result.success(null);
+                }
+                case "shizukuExecute" -> {
+                    List<String> command = call.arguments();
+                    _shizukuManager.execute(command.toArray(new String[0]), result::success);
+                }
                 default -> throw new IllegalArgumentException();
             }
         });

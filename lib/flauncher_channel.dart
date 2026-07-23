@@ -67,6 +67,17 @@ class FLauncherChannel {
 
   Future<void> openHomeSettings() async => await _methodChannel.invokeMethod('openHomeSettings');
 
+  Future<bool> shizukuAvailable() async => await _methodChannel.invokeMethod('shizukuAvailable') ?? false;
+
+  Future<bool> shizukuHasPermission() async => await _methodChannel.invokeMethod('shizukuHasPermission') ?? false;
+
+  Future<void> shizukuRequestPermission() async => await _methodChannel.invokeMethod('shizukuRequestPermission');
+
+  Future<String> shizukuExecute(List<String> command) async {
+    String? output = await _methodChannel.invokeMethod('shizukuExecute', command);
+    return output ?? "";
+  }
+
   Future<bool> checkForGetContentAvailability() async =>
       await _methodChannel.invokeMethod("checkForGetContentAvailability");
 

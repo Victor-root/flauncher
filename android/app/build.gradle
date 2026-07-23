@@ -48,7 +48,7 @@ android {
     defaultConfig {
         applicationId "me.efesser.flauncher"
         compileSdk 35
-        minSdk 21
+        minSdk 23
         targetSdk 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -89,9 +89,19 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
+    buildFeatures {
+        aidl true
+    }
+
     namespace 'me.efesser.flauncher'
 }
 
 flutter {
     source '../..'
+}
+
+dependencies {
+    def shizukuVersion = "13.1.5"
+    implementation "dev.rikka.shizuku:api:$shizukuVersion"
+    implementation "dev.rikka.shizuku:provider:$shizukuVersion"
 }
