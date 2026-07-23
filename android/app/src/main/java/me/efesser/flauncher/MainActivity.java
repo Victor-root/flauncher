@@ -40,6 +40,10 @@ import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,6 +73,7 @@ public class MainActivity extends FlutterActivity
             switch (call.method)
             {
                 case "getApplications" -> result.success(getApplications());
+                case "getApplicationImages" -> result.success(getApplicationImages(call.arguments()));
                 case "getApplicationBanner" -> result.success(getApplicationBanner(call.arguments()));
                 case "getApplicationIcon" -> result.success(getApplicationIcon(call.arguments()));
                 case "applicationExists" -> result.success(applicationExists(call.arguments()));
@@ -100,8 +105,8 @@ public class MainActivity extends FlutterActivity
                 Pair.create(false, queryIntentActivities(false)));
         queryIntentActivitiesCompletionService.submit(() ->
                 Pair.create(true, queryIntentActivities(true)));
-        List<ResolveInfo> tvActivitiesInfo = null;
-        List<ResolveInfo> nonTvActivitiesInfo = null;
+        List<ResolveInfo> tvActivitiesInfo = new ArrayList<>();
+        List<ResolveInfo> nonTvActivitiesInfo = new ArrayList<>();
 
         int completed = 0;
         while (completed < 2) {
@@ -184,7 +189,8 @@ public class MainActivity extends FlutterActivity
     public Map<String, Serializable> getApplication(String packageName) {
         Map<String, Serializable> map = Map.of();
         PackageManager packageManager = getPackageManager();
-        Intent intent = packageManager.getLeanbackLaunchIntentForPackage(packageName);
+        Intent leanbackIntent = packageManager.getLeanbackLaunchIntentForPackage(packageName);
+        Intent intent = leanbackIntent;
 
         if (intent == null) {
             intent = packageManager.getLaunchIntentForPackage(packageName);
@@ -194,43 +200,146 @@ public class MainActivity extends FlutterActivity
             ActivityInfo activityInfo = intent.resolveActivityInfo(getPackageManager(), 0);
 
             if (activityInfo != null) {
-                map = buildAppMap(activityInfo, false, null);
+                boolean sideloaded = leanbackIntent == null;
+                map = buildAppMap(activityInfo, sideloaded, null);
             }
         }
 
         return map;
     }
 
-    private byte[] getApplicationBanner(String packageName) {
-        byte[] imageBytes = new byte[0];
+    private List<Map<String, Serializable>> getApplicationImages(List<String> packageNames) {
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+        CompletionService<Map<String, Serializable>> completionService = new ExecutorCompletionService<>(executor);
 
-        PackageManager packageManager = getPackageManager();
-        try {
-            ApplicationInfo info = packageManager.getApplicationInfo(packageName, 0);
-            Drawable drawable = info.loadBanner(packageManager);
+        for (String packageName : packageNames) {
+            completionService.submit(() -> buildImageMap(packageName));
+        }
 
-            if (drawable != null) {
-                imageBytes = drawableToByteArray(drawable);
+        List<Map<String, Serializable>> images = new ArrayList<>(packageNames.size());
+        int remaining = packageNames.size();
+        while (remaining > 0) {
+            try {
+                images.add(completionService.take().get());
+            } catch (InterruptedException | ExecutionException ignored) {
+            } finally {
+                remaining -= 1;
             }
-        } catch (PackageManager.NameNotFoundException ignored) { }
+        }
 
-        return imageBytes;
+        executor.shutdown();
+        return images;
+    }
+
+    private Map<String, Serializable> buildImageMap(String packageName) {
+        byte[] imageBytes = getApplicationBanner(packageName);
+        String type = "banner";
+
+        if (imageBytes.length == 0) {
+            type = "icon";
+            imageBytes = getApplicationIcon(packageName);
+        }
+
+        Map<String, Serializable> imageMap = new HashMap<>();
+        imageMap.put("packageName", packageName);
+        imageMap.put("type", type);
+        imageMap.put("imageBytes", imageBytes);
+        return imageMap;
+    }
+
+    private byte[] getApplicationBanner(String packageName) {
+        return getCachedApplicationImage(packageName, "banner");
     }
 
     private byte[] getApplicationIcon(String packageName) {
-        byte[] imageBytes = new byte[0];
+        return getCachedApplicationImage(packageName, "icon");
+    }
 
+    // Renders the application banner or icon to PNG bytes, caching the result on disk keyed by the
+    // package's last update time so it is computed only once per installed version. An empty file is
+    // a valid cache entry meaning "this application has no image of that type".
+    private byte[] getCachedApplicationImage(String packageName, String type) {
         PackageManager packageManager = getPackageManager();
+
+        long updateTime;
+        try {
+            updateTime = packageManager.getPackageInfo(packageName, 0).lastUpdateTime;
+        } catch (PackageManager.NameNotFoundException ignored) {
+            return new byte[0];
+        }
+
+        File cacheFile = imageCacheFile(packageName, updateTime, type);
+        byte[] cached = readImageCacheFile(cacheFile);
+        if (cached != null) {
+            return cached;
+        }
+
+        byte[] imageBytes = renderApplicationImage(packageManager, packageName, type);
+        writeImageCacheFile(cacheFile, imageBytes);
+        deleteStaleImageCacheFiles(packageName, updateTime);
+        return imageBytes;
+    }
+
+    private byte[] renderApplicationImage(PackageManager packageManager, String packageName, String type) {
         try {
             ApplicationInfo info = packageManager.getApplicationInfo(packageName, 0);
-            Drawable drawable = info.loadIcon(packageManager);
+            Drawable drawable = type.equals("banner") ? info.loadBanner(packageManager) : info.loadIcon(packageManager);
 
             if (drawable != null) {
-                imageBytes = drawableToByteArray(drawable);
+                return drawableToByteArray(drawable);
             }
         } catch (PackageManager.NameNotFoundException ignored) { }
 
-        return imageBytes;
+        return new byte[0];
+    }
+
+    private File imageCacheDirectory() {
+        File directory = new File(getCacheDir(), "app_images");
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+        return directory;
+    }
+
+    private File imageCacheFile(String packageName, long updateTime, String type) {
+        return new File(imageCacheDirectory(), packageName + "_" + updateTime + "_" + type + ".png");
+    }
+
+    private byte[] readImageCacheFile(File file) {
+        if (!file.exists()) {
+            return null;
+        }
+
+        try (FileInputStream inputStream = new FileInputStream(file)) {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, read);
+            }
+            return outputStream.toByteArray();
+        } catch (IOException ignored) {
+            return null;
+        }
+    }
+
+    private void writeImageCacheFile(File file, byte[] bytes) {
+        try (FileOutputStream outputStream = new FileOutputStream(file)) {
+            outputStream.write(bytes);
+        } catch (IOException ignored) { }
+    }
+
+    private void deleteStaleImageCacheFiles(String packageName, long updateTime) {
+        String prefix = packageName + "_";
+        String current = prefix + updateTime + "_";
+        File[] staleFiles = imageCacheDirectory().listFiles(
+                (directory, name) -> name.startsWith(prefix) && !name.startsWith(current));
+
+        if (staleFiles != null) {
+            for (File staleFile : staleFiles) {
+                staleFile.delete();
+            }
+        }
     }
 
     private boolean applicationExists(String packageName) {

@@ -30,6 +30,11 @@ class FLauncherChannel {
     return applications!;
   }
 
+  Future<List<Map<dynamic, dynamic>>> getApplicationImages(List<String> packageNames) async {
+    List<Map<dynamic, dynamic>>? images = await _methodChannel.invokeListMethod("getApplicationImages", packageNames);
+    return images!;
+  }
+
   Future<Uint8List> getApplicationBanner(String packageName) async {
     Uint8List bytes = await _methodChannel.invokeMethod("getApplicationBanner", packageName);
     return bytes;

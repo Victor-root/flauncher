@@ -21,6 +21,7 @@ import 'dart:collection';
 import 'package:collection/collection.dart' as collection;
 
 import 'package:drift/drift.dart';
+import 'package:flauncher/app_image_type.dart';
 import 'package:flauncher/database.dart';
 import 'package:flauncher/flauncher_channel.dart';
 import 'package:flutter/foundation.dart' hide Category;
@@ -39,6 +40,9 @@ class AppsService extends ChangeNotifier
   List<LauncherSection> _launcherSections = List.empty(growable: true);
   Map<String, App> _applications = Map();
   Map<int, Category> _categoriesById = Map();
+
+  final Map<String, Tuple2<AppImageType, Uint8List>> _appImages = {};
+  Future<void>? _appImagesLoading;
 
   bool get initialized => _initialized;
 
@@ -59,6 +63,8 @@ class AppsService extends ChangeNotifier
       await _initDefaultCategories();
     }
 
+    _appImagesLoading = _loadAppImages();
+
     _fLauncherChannel.addAppsChangedListener((event) async {
       switch (event["action"]) {
         case "PACKAGE_ADDED":
@@ -68,6 +74,11 @@ class AppsService extends ChangeNotifier
 
           App application = App.fromSystem(applicationInfo);
           _applications[application.packageName] = application;
+          _appImages.remove(application.packageName);
+
+          if (event["action"] == "PACKAGE_ADDED") {
+            await _addToDefaultCategory(application);
+          }
           break;
         case "PACKAGES_AVAILABLE":
           List<dynamic> applicationsInfo = event["activitiesInfo"];
@@ -76,11 +87,15 @@ class AppsService extends ChangeNotifier
           for (Map<dynamic, dynamic> applicationInfo in applicationsInfo) {
             App application = App.fromSystem(applicationInfo);
             _applications[application.packageName] = application;
+            _appImages.remove(application.packageName);
+
+            await _addToDefaultCategory(application);
           }
           break;
         case "PACKAGE_REMOVED":
           String packageName = event['packageName'];
           await _database.deleteApps([packageName]);
+          _appImages.remove(packageName);
 
           App? application = _applications.remove(packageName);
 
@@ -157,14 +172,18 @@ class AppsService extends ChangeNotifier
     final Iterable<App> appsRemovedFromSystem = appsFromDatabase
         .where((app) => !appsFromSystemByPackageName.containsKey(app.packageName));
 
-    final List<String> uninstalledApplications = [];
-    for (App app in appsRemovedFromSystem) {
-      String packageName = app.packageName;
+    // An application may be missing from getApplications while still installed (for instance right
+    // after an update, before it exposes a launcher activity again), so its presence is confirmed
+    // before deleting it. These checks are independent and run concurrently.
+    final List<String> removedPackageNames =
+        appsRemovedFromSystem.map((application) => application.packageName).toList(growable: false);
+    final List<bool> stillInstalled = await Future.wait(
+        removedPackageNames.map((packageName) => _fLauncherChannel.applicationExists(packageName)));
 
-      // TODO: Is this really necessary? Can't we get this information from the getApplications method?
-      bool appExists = await _fLauncherChannel.applicationExists(packageName);
-      if (!appExists) {
-        uninstalledApplications.add(packageName);
+    final List<String> uninstalledApplications = [];
+    for (int i = 0; i < removedPackageNames.length; ++i) {
+      if (!stillInstalled[i]) {
+        uninstalledApplications.add(removedPackageNames[i]);
       }
     }
 
@@ -236,11 +255,67 @@ class AppsService extends ChangeNotifier
     }
   }
 
-  Future<Uint8List> getAppBanner(String packageName) {
+  // Makes a newly installed application visible by adding it to the first category. Applications that
+  // are hidden or already assigned to a category are left untouched, so re-available packages are not
+  // moved around.
+  Future<void> _addToDefaultCategory(App application) async {
+    if (application.hidden || _isApplicationInAnyCategory(application.packageName)) {
+      return;
+    }
+
+    Category? defaultCategory = _firstCategoryByOrder();
+    if (defaultCategory != null) {
+      await addToCategory(application, defaultCategory, shouldNotifyListeners: false);
+    }
+  }
+
+  bool _isApplicationInAnyCategory(String packageName) => _categoriesById.values
+      .any((category) => category.applications.any((application) => application.packageName == packageName));
+
+  Category? _firstCategoryByOrder() {
+    Category? first;
+    for (Category category in _categoriesById.values) {
+      if (first == null || category.order < first.order) {
+        first = category;
+      }
+    }
+    return first;
+  }
+
+  Future<void> _loadAppImages() async {
+    try {
+      List<Map<dynamic, dynamic>> images =
+          await _fLauncherChannel.getApplicationImages(_applications.keys.toList());
+
+      _appImages.clear();
+      for (Map<dynamic, dynamic> image in images) {
+        AppImageType type = image["type"] == "banner" ? AppImageType.Banner : AppImageType.Icon;
+        _appImages[image["packageName"]] = Tuple2(type, image["imageBytes"]);
+      }
+    } catch (_) {
+      // Best-effort prefetch: on failure the per-application fallback below still serves images.
+    }
+  }
+
+  Future<Uint8List> getAppBanner(String packageName) async {
+    await _appImagesLoading;
+
+    Tuple2<AppImageType, Uint8List>? cached = _appImages[packageName];
+    if (cached != null) {
+      return cached.item1 == AppImageType.Banner ? cached.item2 : Uint8List(0);
+    }
+
     return _fLauncherChannel.getApplicationBanner(packageName);
   }
 
-  Future<Uint8List> getAppIcon(String packageName) {
+  Future<Uint8List> getAppIcon(String packageName) async {
+    await _appImagesLoading;
+
+    Tuple2<AppImageType, Uint8List>? cached = _appImages[packageName];
+    if (cached != null && cached.item1 == AppImageType.Icon) {
+      return cached.item2;
+    }
+
     return _fLauncherChannel.getApplicationIcon(packageName);
   }
 
@@ -378,7 +453,11 @@ class AppsService extends ChangeNotifier
       }
 
     }
-    catch (ex) { }
+    catch (ex) {
+      if (kDebugMode) {
+        debugPrint("Failed to add category '$categoryName': $ex");
+      }
+    }
 
     return newCategoryId;
   }
