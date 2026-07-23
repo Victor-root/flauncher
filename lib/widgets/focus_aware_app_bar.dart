@@ -1,3 +1,4 @@
+import 'package:flauncher/widgets/search_panel.dart';
 import 'package:flauncher/widgets/settings/settings_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -47,6 +48,18 @@ class _FocusAwareAppBarState extends State<FocusAwareAppBar>
       },
       child: AppBar(
         actions: [
+          IconButton(
+            padding: const EdgeInsets.all(2),
+            constraints: const BoxConstraints(),
+            splashRadius: 20,
+            icon: const Icon(Icons.search,
+              shadows: [
+                Shadow(color: Colors.black54, blurRadius: 8, offset: Offset(0, 2))
+              ],
+            ),
+            onPressed: () => showDialog(context: context, builder: (_) => const SearchPanel()),
+            focusColor: Theme.of(context).primaryColorLight,
+          ),
           IconButton(
             padding: const EdgeInsets.all(2),
             constraints: const BoxConstraints(),
