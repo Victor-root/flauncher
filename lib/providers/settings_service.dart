@@ -28,6 +28,7 @@ const _autoHideAppBar = "auto_hide_app_bar";
 const _gradientUuidKey = "gradient_uuid";
 const _backButtonAction = "back_button_action";
 const _dateFormat = "date_format";
+const _overscanFraction = "overscan_fraction";
 const _showCategoryTitles = "show_category_titles";
 const _showDateInStatusBar = "show_date_in_status_bar";
 const _showTimeInStatusBar = "show_time_in_status_bar";
@@ -58,6 +59,8 @@ class SettingsService extends ChangeNotifier {
   String get dateFormat => _sharedPreferences.getString(_dateFormat) ?? defaultDateFormat;
 
   String get timeFormat => _sharedPreferences.getString(_timeFormat) ?? defaultTimeFormat;
+
+  double get overscanFraction => _sharedPreferences.getDouble(_overscanFraction) ?? 0.0;
 
   SettingsService(
     this._sharedPreferences
@@ -108,5 +111,10 @@ class SettingsService extends ChangeNotifier {
 
   Future<void> setShowTimeInStatusBar(bool show) async {
     return set(_showTimeInStatusBar, show);
+  }
+
+  Future<void> setOverscanFraction(double value) async {
+    await _sharedPreferences.setDouble(_overscanFraction, value);
+    notifyListeners();
   }
 }

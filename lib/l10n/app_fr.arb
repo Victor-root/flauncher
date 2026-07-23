@@ -1,0 +1,109 @@
+{
+    "aboutFlauncher": "À propos de FLauncher",
+    "addCategory": "Ajouter une catégorie",
+    "addSection": "Ajouter une section",
+    "alphabetical": "Alphabétique",
+    "appCardHighlightAnimation": "Animation de mise en évidence des applications",
+    "appInfo": "Informations sur l'application",
+    "appKeyClick": "Son lors de l'appui sur une touche",
+    "applications": "Applications",
+    "autoHideAppBar": "Masquer automatiquement la barre d'état",
+    "backButtonAction": "Action du bouton Retour",
+    "category": "Catégorie",
+    "categories": "Catégories",
+    "columnCount": "Nombre de colonnes",
+    "date": "Date",
+    "dateAndTimeFormat": "Format de la date et de l'heure",
+    "delete": "Supprimer",
+    "dialogOptionBackButtonActionDoNothing": "Ne rien faire",
+    "dialogOptionBackButtonActionShowScreensaver": "Afficher l'économiseur d'écran",
+    "dialogOptionBackButtonActionShowClock": "Afficher l'horloge",
+    "dialogTextNoFileExplorer": "Veuillez installer un explorateur de fichiers pour choisir une image.",
+    "dialogTitleBackButtonAction": "Choisir l'action du bouton Retour",
+    "dialogTitleOverscan": "Choisir la marge d'overscan",
+    "disambiguateCategoryTitle": "{title} (Catégorie)",
+    "@disambiguateCategoryTitle": {
+        "placeholders": {
+            "title": {
+                "type": "String"
+            }
+        }
+    },
+    "formattedDate": "Date formatée : {dateString}",
+    "@formattedDate": {
+        "placeholders": {
+            "dateString": {
+                "type": "String"
+            }
+        }
+    },
+    "formattedTime": "Heure formatée : {timeString}",
+    "@formattedTime": {
+        "placeholders": {
+            "timeString": {
+                "type": "String"
+            }
+        }
+    },
+    "gradient": "Dégradé",
+    "grid": "Grille",
+    "height": "Hauteur",
+    "hide": "Masquer",
+    "hiddenApplications": "Applications masquées",
+    "launcherSections": "Sections",
+    "layout": "Disposition",
+    "loading": "Chargement",
+    "manual": "Manuel",
+    "modifySection": "Modifier la section",
+    "mustNotBeEmpty": "Ne doit pas être vide",
+    "name": "Nom",
+    "newSection": "Nouvelle section",
+    "noDateFormatSpecified": "Aucun format de date spécifié",
+    "noTimeFormatSpecified": "Aucun format d'heure spécifié",
+    "nonTvApplications": "Applications non-TV",
+    "open": "Ouvrir",
+    "orSelectFormatSpecifiers": "Ou sélectionnez des spécificateurs de format",
+    "overscan": "Marge d'overscan",
+    "overscanLarge": "Grande",
+    "overscanMedium": "Moyenne",
+    "overscanNone": "Aucune",
+    "overscanSmall": "Petite",
+    "picture": "Image",
+    "removeFrom": "Retirer de {name}",
+    "@removeFrom": {
+        "placeholders": {
+            "name": { "type": "String" }
+        }
+    },
+    "renameCategory": "Renommer la catégorie",
+    "reorder": "Réorganiser",
+    "row": "Ligne",
+    "rowHeight": "Hauteur de ligne",
+    "save": "Enregistrer",
+    "spacer": "Espaceur",
+    "spacerMaxHeightRequirement": "Doit être supérieur à 0 et inférieur ou égal à 500",
+    "statusBar": "Barre d'état",
+    "settings": "Paramètres",
+    "show": "Afficher",
+    "showCategoryTitles": "Afficher les titres des catégories",
+    "sort": "Tri",
+    "systemSettings": "Paramètres système",
+    "textAboutDialog": "FLauncher est un launcher alternatif open source pour Android TV.\nCode source disponible sur {repoUrl}.\n\nLogo par Katie (@fureturoe), design par @FXCostanzo.",
+    "@textAboutDialog": {
+        "placeholders": {
+            "repoUrl": {
+                "type": "String"
+            }
+        }
+    },
+    "textEmptyCategory": "Cette catégorie est vide.",
+    "time": "Heure",
+    "titleStatusBarSettingsPage": "Choisissez ce qui s'affiche dans la barre d'état",
+    "tvApplications": "Applications TV",
+    "type": "Type",
+    "typeInTheDateFormat": "Saisissez le format de la date",
+    "typeInTheHourFormat": "Saisissez le format de l'heure",
+    "uninstall": "Désinstaller",
+    "wallpaper": "Fond d'écran",
+    "withEllipsisAddTo": "Ajouter à..."
+}

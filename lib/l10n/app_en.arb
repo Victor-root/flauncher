@@ -20,6 +20,7 @@
     "dialogOptionBackButtonActionShowClock": "Show clock",
     "dialogTextNoFileExplorer": "Please install a file explorer in order to pick a picture.",
     "dialogTitleBackButtonAction": "Choose the back button action",
+    "dialogTitleOverscan": "Choose the overscan margin",
     "disambiguateCategoryTitle": "{title} (Category)",
     "@disambiguateCategoryTitle": {
         "placeholders": {
@@ -62,6 +63,11 @@
     "nonTvApplications": "Non-TV applications",
     "open": "Open",
     "orSelectFormatSpecifiers": "Or select format specifiers",
+    "overscan": "Overscan margin",
+    "overscanLarge": "Large",
+    "overscanMedium": "Medium",
+    "overscanNone": "None",
+    "overscanSmall": "Small",
     "picture": "Picture",
     "removeFrom": "Remove from {name}",
     "@removeFrom": {

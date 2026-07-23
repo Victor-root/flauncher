@@ -144,6 +144,16 @@ class SettingsPanelPage extends StatelessWidget {
                       title: Text(localizations.showCategoryTitles, style: Theme.of(context).textTheme.bodyMedium),
                       secondary: Icon(Icons.abc)
                   ),
+                  TextButton(
+                    child: Row(
+                      children: [
+                        const Icon(Icons.fit_screen),
+                        Container(width: 8),
+                        Text(localizations.overscan, style: Theme.of(context).textTheme.bodyMedium),
+                      ],
+                    ),
+                    onPressed: () async => await _overscanDialog(context),
+                  ),
                   const Divider(),
                   TextButton(
                     child: Row(
@@ -212,6 +222,40 @@ class SettingsPanelPage extends StatelessWidget {
 
     if (formatTuple != null) {
       await service.setDateTimeFormat(formatTuple.item1, formatTuple.item2);
+    }
+  }
+
+  Future<void> _overscanDialog(BuildContext context) async {
+    AppLocalizations localizations = AppLocalizations.of(context)!;
+    SettingsService service = context.read<SettingsService>();
+
+    final selected = await showDialog<double>(
+        context: context,
+        builder: (context) => SimpleDialog(
+            title: Text(localizations.dialogTitleOverscan),
+            children: [
+              SimpleDialogOption(
+                child: Text(localizations.overscanNone),
+                onPressed: () => Navigator.pop(context, 0.0),
+              ),
+              SimpleDialogOption(
+                child: Text(localizations.overscanSmall),
+                onPressed: () => Navigator.pop(context, 0.02),
+              ),
+              SimpleDialogOption(
+                child: Text(localizations.overscanMedium),
+                onPressed: () => Navigator.pop(context, 0.035),
+              ),
+              SimpleDialogOption(
+                child: Text(localizations.overscanLarge),
+                onPressed: () => Navigator.pop(context, 0.05),
+              )
+            ]
+        )
+    );
+
+    if (selected != null) {
+      await service.setOverscanFraction(selected);
     }
   }
 }

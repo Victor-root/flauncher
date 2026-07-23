@@ -20,6 +20,7 @@
 import 'package:flauncher/custom_traversal_policy.dart';
 import 'package:flauncher/providers/apps_service.dart';
 import 'package:flauncher/providers/launcher_state.dart';
+import 'package:flauncher/providers/settings_service.dart';
 import 'package:flauncher/providers/wallpaper_service.dart';
 import 'package:flauncher/widgets/apps_grid.dart';
 import 'package:flauncher/widgets/category_row.dart';
@@ -50,20 +51,33 @@ class FLauncher extends StatelessWidget {
             ),
             visible: state.launcherVisible
           ),
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: FocusAwareAppBar(),
-            body: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: Consumer<AppsService>(
-                builder: (context, appsService, _) {
-                  if (appsService.initialized) {
-                    return SingleChildScrollView(child: _sections(appsService.launcherSections));
+          child: Selector<SettingsService, double>(
+            selector: (_, settingsService) => settingsService.overscanFraction,
+            builder: (context, overscanFraction, scaffold) {
+              final Size size = MediaQuery.sizeOf(context);
+              return Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: size.width * overscanFraction,
+                  vertical: size.height * overscanFraction,
+                ),
+                child: scaffold,
+              );
+            },
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              appBar: FocusAwareAppBar(),
+              body: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: Consumer<AppsService>(
+                  builder: (context, appsService, _) {
+                    if (appsService.initialized) {
+                      return SingleChildScrollView(child: _sections(appsService.launcherSections));
+                    }
+                    else {
+                      return _emptyState(context);
+                    }
                   }
-                  else {
-                    return _emptyState(context);
-                  }
-                }
+                )
               )
             )
           )

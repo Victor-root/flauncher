@@ -20,6 +20,7 @@
     "dialogOptionBackButtonActionShowClock": "Mostrar reloj",
     "dialogTextNoFileExplorer": "Por favor, instale un gestor de archivos para seleccionar una imagen.",
     "dialogTitleBackButtonAction": "Elegir la acción del botón 'Atrás'",
+    "dialogTitleOverscan": "Elegir el margen de overscan",
     "disambiguateCategoryTitle": "{title} (Categoría)",
     "@disambiguateCategoryTitle": {
         "placeholders": {
@@ -32,9 +33,7 @@
     "@formattedDate": {
         "placeholders": {
             "dateString": {
-                "type": {
-                    "type": "String"
-                }
+                "type": "String"
             }
         }
     },
@@ -42,9 +41,7 @@
     "@formattedTime": {
         "placeholders": {
             "timeString": {
-                "type": {
-                    "type": "String"
-                }
+                "type": "String"
             }
         }
     },
@@ -66,6 +63,11 @@
     "nonTvApplications": "Otras aplicaciones",
     "open": "Abrir",
     "orSelectFormatSpecifiers": "O seleccione especificadores de formato",
+    "overscan": "Margen de overscan",
+    "overscanLarge": "Grande",
+    "overscanMedium": "Mediano",
+    "overscanNone": "Ninguno",
+    "overscanSmall": "Pequeño",
     "picture": "Imagen",
     "removeFrom": "Remover de {name}",
     "@removeFrom": {
@@ -75,8 +77,8 @@
     },
     "renameCategory": "Renombrar categoría",
     "reorder": "Reordenar",
-    "row": "Row",
-    "rowHeight": "Row height",
+    "row": "Fila",
+    "rowHeight": "Altura de fila",
     "save": "Guardar",
     "spacer": "Espaciador",
     "spacerMaxHeightRequirement": "Debe ser mayor a cero y menor o igual a 500",
