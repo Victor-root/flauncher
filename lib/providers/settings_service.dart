@@ -30,6 +30,7 @@ const _backButtonAction = "back_button_action";
 const _dateFormat = "date_format";
 const _overscanFraction = "overscan_fraction";
 const _showCategoryTitles = "show_category_titles";
+const _showRecentApplications = "show_recent_applications";
 const _showDateInStatusBar = "show_date_in_status_bar";
 const _showTimeInStatusBar = "show_time_in_status_bar";
 const _timeFormat = "time_format";
@@ -47,6 +48,8 @@ class SettingsService extends ChangeNotifier {
   bool get autoHideAppBarEnabled => _sharedPreferences.getBool(_autoHideAppBar) ?? false;
 
   bool get showCategoryTitles => _sharedPreferences.getBool(_showCategoryTitles) ?? true;
+
+  bool get showRecentApplications => _sharedPreferences.getBool(_showRecentApplications) ?? true;
 
   bool get showDateInStatusBar => _sharedPreferences.getBool(_showDateInStatusBar) ?? true;
 
@@ -103,6 +106,10 @@ class SettingsService extends ChangeNotifier {
 
   Future<void> setShowCategoryTitles(bool show) async {
     return set(_showCategoryTitles, show);
+  }
+
+  Future<void> setShowRecentApplications(bool show) async {
+    return set(_showRecentApplications, show);
   }
 
   Future<void> setShowDateInStatusBar(bool show) async {

@@ -70,6 +70,7 @@
     "overscanNone": "Ninguno",
     "overscanSmall": "Pequeño",
     "picture": "Imagen",
+    "recentApplications": "Aplicaciones recientes",
     "removeFrom": "Remover de {name}",
     "@removeFrom": {
         "placeholders": {
@@ -89,6 +90,7 @@
     "settings": "Ajustes",
     "show": "Mostrar",
     "showCategoryTitles": "Mostrar títulos de categorías",
+    "showRecentApplications": "Mostrar aplicaciones recientes",
     "sort": "Orden",
     "systemSettings": "Ajustes del sistema",
     "textAboutDialog": "FLauncher es un lanzador de aplicaciones alternativo de código abierto para Android TV.\nCódigo fuente disponible en {repoUrl}.\n\nLogo creado por Katie (@fureturoe) y diseño por @FXCostanzo.",

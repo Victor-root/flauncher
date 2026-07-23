@@ -144,6 +144,12 @@ class SettingsPanelPage extends StatelessWidget {
                       title: Text(localizations.showCategoryTitles, style: Theme.of(context).textTheme.bodyMedium),
                       secondary: Icon(Icons.abc)
                   ),
+                  RoundedSwitchListTile(
+                    value: settingsService.showRecentApplications,
+                    onChanged: (value) => settingsService.setShowRecentApplications(value),
+                    title: Text(localizations.showRecentApplications, style: Theme.of(context).textTheme.bodyMedium),
+                    secondary: Icon(Icons.history),
+                  ),
                   TextButton(
                     child: Row(
                       children: [

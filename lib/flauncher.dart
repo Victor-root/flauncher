@@ -26,10 +26,12 @@ import 'package:flauncher/widgets/apps_grid.dart';
 import 'package:flauncher/widgets/category_row.dart';
 import 'package:flauncher/widgets/launcher_alternative_view.dart';
 import 'package:flauncher/widgets/focus_aware_app_bar.dart';
+import 'package:flauncher/widgets/recent_applications_row.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import 'models/app.dart';
 import 'models/category.dart';
 
 class FLauncher extends StatelessWidget {
@@ -71,7 +73,9 @@ class FLauncher extends StatelessWidget {
                 child: Consumer<AppsService>(
                   builder: (context, appsService, _) {
                     if (appsService.initialized) {
-                      return SingleChildScrollView(child: _sections(appsService.launcherSections));
+                      return SingleChildScrollView(
+                        child: _sections(appsService.launcherSections, appsService.recentApplications)
+                      );
                     }
                     else {
                       return _emptyState(context);
@@ -86,36 +90,48 @@ class FLauncher extends StatelessWidget {
     )
   );
 
-  Widget _sections(List<LauncherSection> sections) => Column(
-    children: sections.map((section) {
-      final Key sectionKey = Key(section.id.toString());
-      final Widget categoryWidget;
+  Widget _sections(List<LauncherSection> sections, List<App> recentApplications) => Column(
+    children: [
+      Selector<SettingsService, bool>(
+        selector: (_, settingsService) => settingsService.showRecentApplications,
+        builder: (_, showRecentApplications, __) =>
+            (showRecentApplications && recentApplications.isNotEmpty)
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: RecentApplicationsRow(applications: recentApplications),
+                  )
+                : const SizedBox.shrink(),
+      ),
+      ...sections.map((section) {
+        final Key sectionKey = Key(section.id.toString());
+        final Widget categoryWidget;
 
-      if (section is LauncherSpacer) {
-        return SizedBox(key: sectionKey, height: section.height.toDouble());
-      }
+        if (section is LauncherSpacer) {
+          return SizedBox(key: sectionKey, height: section.height.toDouble());
+        }
 
-      Category category = section as Category;
-      switch (category.type) {
-        case CategoryType.row:
-          categoryWidget = CategoryRow(
-              key: sectionKey,
-              category: category,
-              applications: category.applications
-          );
-        case CategoryType.grid:
-          categoryWidget = AppsGrid(
-              key: sectionKey,
-              category: category,
-              applications: category.applications
-          );
-      }
+        Category category = section as Category;
+        switch (category.type) {
+          case CategoryType.row:
+            categoryWidget = CategoryRow(
+                key: sectionKey,
+                category: category,
+                applications: category.applications
+            );
+          case CategoryType.grid:
+            categoryWidget = AppsGrid(
+                key: sectionKey,
+                category: category,
+                applications: category.applications
+            );
+        }
 
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: categoryWidget
-      );
-    }).toList(),
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: categoryWidget
+        );
+      }),
+    ],
   );
 
   Widget _wallpaper(BuildContext context, WallpaperService wallpaperService) {

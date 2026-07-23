@@ -25,15 +25,20 @@ import 'package:flauncher/app_image_type.dart';
 import 'package:flauncher/database.dart';
 import 'package:flauncher/flauncher_channel.dart';
 import 'package:flutter/foundation.dart' hide Category;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tuple/tuple.dart';
 
 import '../models/app.dart';
 import '../models/category.dart';
 
+const _recentApplicationsKey = "recent_applications";
+const _maxRecentApplications = 10;
+
 class AppsService extends ChangeNotifier
 {
   final FLauncherChannel _fLauncherChannel;
   final FLauncherDatabase _database;
+  final SharedPreferences _sharedPreferences;
 
   bool _initialized = false;
 
@@ -44,6 +49,8 @@ class AppsService extends ChangeNotifier
   final Map<String, Tuple2<AppImageType, Uint8List>> _appImages = {};
   Future<void>? _appImagesLoading;
 
+  List<String> _recentPackageNames = [];
+
   bool get initialized => _initialized;
 
   List<App> get applications => UnmodifiableListView(_applications.values.sortedBy((application) => application.name));
@@ -53,7 +60,13 @@ class AppsService extends ChangeNotifier
       .map((category) => category.unmodifiable())
       .toList(growable: false);
 
-  AppsService(this._fLauncherChannel, this._database) {
+  List<App> get recentApplications => _recentPackageNames
+      .map((packageName) => _applications[packageName])
+      .whereType<App>()
+      .where((application) => !application.hidden)
+      .toList(growable: false);
+
+  AppsService(this._fLauncherChannel, this._database, this._sharedPreferences) {
     _init();
   }
 
@@ -64,6 +77,7 @@ class AppsService extends ChangeNotifier
     }
 
     _appImagesLoading = _loadAppImages();
+    _recentPackageNames = List<String>.from(_sharedPreferences.getStringList(_recentApplicationsKey) ?? const []);
 
     _fLauncherChannel.addAppsChangedListener((event) async {
       switch (event["action"]) {
@@ -320,6 +334,8 @@ class AppsService extends ChangeNotifier
   }
 
   Future<void> launchApp(App app) {
+    _recordRecentApplication(app);
+
     Future<void> future;
     if (app.action == null) {
       future = _fLauncherChannel.launchApp(app.packageName);
@@ -329,6 +345,17 @@ class AppsService extends ChangeNotifier
     }
 
     return future;
+  }
+
+  void _recordRecentApplication(App app) {
+    _recentPackageNames.remove(app.packageName);
+    _recentPackageNames.insert(0, app.packageName);
+    if (_recentPackageNames.length > _maxRecentApplications) {
+      _recentPackageNames = _recentPackageNames.sublist(0, _maxRecentApplications);
+    }
+
+    _sharedPreferences.setStringList(_recentApplicationsKey, _recentPackageNames);
+    notifyListeners();
   }
 
   Future<void> openAppInfo(App app) => _fLauncherChannel.openAppInfo(app.packageName);
