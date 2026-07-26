@@ -1,6 +1,7 @@
 import 'package:flauncher/providers/network_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 class NetworkWidget extends StatelessWidget
 {
@@ -54,7 +55,7 @@ class NetworkWidget extends StatelessWidget
               iconData = Icons.signal_wifi_4_bar;
             }
             break;
-          case NetworkType.Vpn: iconData = Icons.vpn_key; break;
+          case NetworkType.Vpn: iconData = TablerIcons.shieldLock; break;
           case NetworkType.Wired: iconData = Icons.lan; break;
           case NetworkType.Unknown: iconData = Icons.link_off; break;
         }

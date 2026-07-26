@@ -2,6 +2,7 @@ import 'package:flauncher/widgets/search_panel.dart';
 import 'package:flauncher/widgets/settings/settings_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 
 import '../providers/settings_service.dart';
 import 'date_time_widget.dart';
@@ -52,7 +53,7 @@ class _FocusAwareAppBarState extends State<FocusAwareAppBar>
             padding: const EdgeInsets.all(2),
             constraints: const BoxConstraints(),
             splashRadius: 20,
-            icon: const Icon(Icons.search,
+            icon: const Icon(TablerIcons.search,
               shadows: [
                 Shadow(color: Colors.black54, blurRadius: 8, offset: Offset(0, 2))
               ],
@@ -64,7 +65,7 @@ class _FocusAwareAppBarState extends State<FocusAwareAppBar>
             padding: const EdgeInsets.all(2),
             constraints: const BoxConstraints(),
             splashRadius: 20,
-            icon: const Icon(Icons.settings_outlined,
+            icon: const Icon(TablerIcons.settings,
               shadows: [
                 Shadow(color: Colors.black54, blurRadius: 8, offset: Offset(0, 2))
               ],
