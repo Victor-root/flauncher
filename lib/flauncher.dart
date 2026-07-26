@@ -23,10 +23,10 @@ import 'package:flauncher/providers/launcher_state.dart';
 import 'package:flauncher/providers/settings_service.dart';
 import 'package:flauncher/providers/wallpaper_service.dart';
 import 'package:flauncher/widgets/apps_grid.dart';
+import 'package:flauncher/widgets/apps_row.dart';
 import 'package:flauncher/widgets/category_row.dart';
 import 'package:flauncher/widgets/launcher_alternative_view.dart';
 import 'package:flauncher/widgets/focus_aware_app_bar.dart';
-import 'package:flauncher/widgets/recent_applications_row.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -77,7 +77,11 @@ class FLauncher extends StatelessWidget {
                         child: Selector<SettingsService, bool>(
                           selector: (_, settingsService) => settingsService.forceGridLayout,
                           builder: (_, forceGridLayout, __) => _sections(
-                              appsService.launcherSections, appsService.recentApplications, forceGridLayout),
+                              context,
+                              appsService.launcherSections,
+                              appsService.favoriteApplications,
+                              appsService.recentApplications,
+                              forceGridLayout),
                         ),
                       );
                     }
@@ -94,15 +98,30 @@ class FLauncher extends StatelessWidget {
     )
   );
 
-  Widget _sections(List<LauncherSection> sections, List<App> recentApplications, bool forceGridLayout) => Column(
+  Widget _sections(BuildContext context, List<LauncherSection> sections, List<App> favoriteApplications,
+      List<App> recentApplications, bool forceGridLayout) {
+    AppLocalizations localizations = AppLocalizations.of(context)!;
+
+    return Column(
     children: [
+      Selector<SettingsService, bool>(
+        selector: (_, settingsService) => settingsService.showFavoriteApplications,
+        builder: (_, showFavoriteApplications, __) =>
+            (showFavoriteApplications && favoriteApplications.isNotEmpty)
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: AppsRow(
+                        rowId: "favorite", title: localizations.favoriteApplications, applications: favoriteApplications),
+                  )
+                : const SizedBox.shrink(),
+      ),
       Selector<SettingsService, bool>(
         selector: (_, settingsService) => settingsService.showRecentApplications,
         builder: (_, showRecentApplications, __) =>
             (showRecentApplications && recentApplications.isNotEmpty)
                 ? Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: RecentApplicationsRow(applications: recentApplications),
+                    child: AppsRow(rowId: "recent", title: localizations.recentApplications, applications: recentApplications),
                   )
                 : const SizedBox.shrink(),
       ),
@@ -137,7 +156,8 @@ class FLauncher extends StatelessWidget {
         );
       }),
     ],
-  );
+    );
+  }
 
   Widget _wallpaper(BuildContext context, WallpaperService wallpaperService) {
     if (wallpaperService.wallpaper != null) {

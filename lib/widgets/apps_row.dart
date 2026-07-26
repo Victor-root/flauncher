@@ -22,17 +22,19 @@ import 'package:flauncher/providers/settings_service.dart';
 import 'package:flauncher/widgets/app_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class RecentApplicationsRow extends StatelessWidget {
+// A row of applications with no backing Category (favorites, recents): displayed as either a
+// horizontal carousel or a grid depending on the user's layout setting, with no reorder/remove-from
+// actions since there is no category to persist against.
+class AppsRow extends StatelessWidget {
+  final String rowId;
+  final String title;
   final List<App> applications;
 
-  const RecentApplicationsRow({super.key, required this.applications});
+  const AppsRow({super.key, required this.rowId, required this.title, required this.applications});
 
   @override
   Widget build(BuildContext context) {
-    AppLocalizations localizations = AppLocalizations.of(context)!;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -43,7 +45,7 @@ class RecentApplicationsRow extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.only(left: 16, bottom: 8),
                 child: Text(
-                  localizations.recentApplications,
+                  title,
                   style: Theme.of(context)
                       .textTheme
                       .titleLarge!
@@ -70,7 +72,7 @@ class RecentApplicationsRow extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           itemCount: applications.length,
           itemBuilder: (context, index) => Padding(
-            key: Key("recent_${applications[index].packageName}"),
+            key: Key("${rowId}_${applications[index].packageName}"),
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: AppCard(
               category: null,
@@ -96,7 +98,7 @@ class RecentApplicationsRow extends StatelessWidget {
         childrenDelegate: SliverChildBuilderDelegate(
           childCount: applications.length,
           (context, index) => AppCard(
-            key: Key("recent_${applications[index].packageName}"),
+            key: Key("${rowId}_${applications[index].packageName}"),
             category: null,
             application: applications[index],
             autofocus: index == 0,

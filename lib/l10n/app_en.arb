@@ -2,6 +2,7 @@
     "aboutFlauncher": "About FLauncher",
     "addCategory": "Add category",
     "addSection": "Add section",
+    "addToFavorites": "Add to favorites",
     "alphabetical": "Alphabetical",
     "appCardHighlightAnimation": "App card highlight animation",
     "appInfo": "Application info",
@@ -41,6 +42,7 @@
             }
         }
     },
+    "favoriteApplications": "Favorites",
     "forceGridLayout": "Always show applications as a grid",
     "formattedDate": "Formatted date: {dateString}",
     "@formattedDate": {
@@ -90,6 +92,7 @@
             "name": { "type": "String" }
         }
     },
+    "removeFromFavorites": "Remove from favorites",
     "renameCategory": "Rename category",
     "reorder": "Reorder",
     "row": "Row",
@@ -103,6 +106,7 @@
     "settings": "Settings",
     "show": "Show",
     "showCategoryTitles": "Show category titles",
+    "showFavoriteApplications": "Show favorite applications",
     "showRecentApplications": "Show recent applications",
     "sort": "Sort",
     "systemSettings": "System settings",

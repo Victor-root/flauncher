@@ -31,6 +31,7 @@ const _dateFormat = "date_format";
 const _overscanFraction = "overscan_fraction";
 const _showCategoryTitles = "show_category_titles";
 const _showRecentApplications = "show_recent_applications";
+const _showFavoriteApplications = "show_favorite_applications";
 const _forceGridLayout = "force_grid_layout";
 const _showDateInStatusBar = "show_date_in_status_bar";
 const _showTimeInStatusBar = "show_time_in_status_bar";
@@ -51,6 +52,8 @@ class SettingsService extends ChangeNotifier {
   bool get showCategoryTitles => _sharedPreferences.getBool(_showCategoryTitles) ?? true;
 
   bool get showRecentApplications => _sharedPreferences.getBool(_showRecentApplications) ?? true;
+
+  bool get showFavoriteApplications => _sharedPreferences.getBool(_showFavoriteApplications) ?? true;
 
   bool get forceGridLayout => _sharedPreferences.getBool(_forceGridLayout) ?? false;
 
@@ -113,6 +116,10 @@ class SettingsService extends ChangeNotifier {
 
   Future<void> setShowRecentApplications(bool show) async {
     return set(_showRecentApplications, show);
+  }
+
+  Future<void> setShowFavoriteApplications(bool show) async {
+    return set(_showFavoriteApplications, show);
   }
 
   Future<void> setForceGridLayout(bool grid) async {

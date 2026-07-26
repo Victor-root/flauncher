@@ -21,6 +21,7 @@ import 'package:flauncher/providers/apps_service.dart';
 import 'package:flauncher/widgets/right_panel_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../models/app.dart';
@@ -41,6 +42,7 @@ class ApplicationInfoPanel extends StatelessWidget
   @override
   Widget build(BuildContext context) {
     AppLocalizations localizations = AppLocalizations.of(context)!;
+    bool isFavorite = context.watch<AppsService>().isFavorite(application.packageName);
 
     return RightPanelDialog(
         child: Column(
@@ -103,6 +105,24 @@ class ApplicationInfoPanel extends StatelessWidget
                        ),
                        onPressed: () => Navigator.of(context).pop(ApplicationInfoPanelResult.reorderApp),
                      ),
+                   TextButton(
+                     child: Row(
+                       children: [
+                         Icon(isFavorite ? TablerIcons.starOff : TablerIcons.star),
+                         Container(width: 8),
+                         Text(isFavorite ? localizations.removeFromFavorites : localizations.addToFavorites,
+                             style: Theme.of(context).textTheme.bodyMedium),
+                       ],
+                     ),
+                     onPressed: () async {
+                       if (isFavorite) {
+                         await context.read<AppsService>().removeFavorite(application);
+                       } else {
+                         await context.read<AppsService>().addFavorite(application);
+                       }
+                       Navigator.of(context).pop(ApplicationInfoPanelResult.none);
+                     },
+                   ),
                    TextButton(
                      child: Row(
                        children: [

@@ -29,6 +29,7 @@ import 'package:flauncher/widgets/settings/wallpaper_panel_page.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:tabler_icons_plus/tabler_icons_plus.dart';
 import 'package:tuple/tuple.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -154,6 +155,12 @@ class SettingsPanelPage extends StatelessWidget {
                       onChanged: (value) => settingsService.setShowCategoryTitles(value),
                       title: Text(localizations.showCategoryTitles, style: Theme.of(context).textTheme.bodyMedium),
                       secondary: Icon(Icons.abc)
+                  ),
+                  RoundedSwitchListTile(
+                    value: settingsService.showFavoriteApplications,
+                    onChanged: (value) => settingsService.setShowFavoriteApplications(value),
+                    title: Text(localizations.showFavoriteApplications, style: Theme.of(context).textTheme.bodyMedium),
+                    secondary: Icon(TablerIcons.star),
                   ),
                   RoundedSwitchListTile(
                     value: settingsService.showRecentApplications,

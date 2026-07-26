@@ -33,6 +33,7 @@ import '../models/category.dart';
 
 const _recentApplicationsKey = "recent_applications";
 const _maxRecentApplications = 10;
+const _favoriteApplicationsKey = "favorite_applications";
 
 class AppsService extends ChangeNotifier
 {
@@ -50,6 +51,7 @@ class AppsService extends ChangeNotifier
   Future<void>? _appImagesLoading;
 
   List<String> _recentPackageNames = [];
+  List<String> _favoritePackageNames = [];
 
   bool get initialized => _initialized;
 
@@ -66,6 +68,14 @@ class AppsService extends ChangeNotifier
       .where((application) => !application.hidden)
       .toList(growable: false);
 
+  List<App> get favoriteApplications => _favoritePackageNames
+      .map((packageName) => _applications[packageName])
+      .whereType<App>()
+      .where((application) => !application.hidden)
+      .toList(growable: false);
+
+  bool isFavorite(String packageName) => _favoritePackageNames.contains(packageName);
+
   AppsService(this._fLauncherChannel, this._database, this._sharedPreferences) {
     _init();
   }
@@ -78,6 +88,7 @@ class AppsService extends ChangeNotifier
 
     _appImagesLoading = _loadAppImages();
     _recentPackageNames = List<String>.from(_sharedPreferences.getStringList(_recentApplicationsKey) ?? const []);
+    _favoritePackageNames = List<String>.from(_sharedPreferences.getStringList(_favoriteApplicationsKey) ?? const []);
 
     _fLauncherChannel.addAppsChangedListener((event) async {
       switch (event["action"]) {
@@ -110,6 +121,9 @@ class AppsService extends ChangeNotifier
           String packageName = event['packageName'];
           await _database.deleteApps([packageName]);
           _appImages.remove(packageName);
+          if (_favoritePackageNames.remove(packageName)) {
+            await _sharedPreferences.setStringList(_favoriteApplicationsKey, _favoritePackageNames);
+          }
 
           App? application = _applications.remove(packageName);
 
@@ -356,6 +370,21 @@ class AppsService extends ChangeNotifier
 
     _sharedPreferences.setStringList(_recentApplicationsKey, _recentPackageNames);
     notifyListeners();
+  }
+
+  Future<void> addFavorite(App app) async {
+    if (!_favoritePackageNames.contains(app.packageName)) {
+      _favoritePackageNames.add(app.packageName);
+      await _sharedPreferences.setStringList(_favoriteApplicationsKey, _favoritePackageNames);
+      notifyListeners();
+    }
+  }
+
+  Future<void> removeFavorite(App app) async {
+    if (_favoritePackageNames.remove(app.packageName)) {
+      await _sharedPreferences.setStringList(_favoriteApplicationsKey, _favoritePackageNames);
+      notifyListeners();
+    }
   }
 
   Future<void> openAppInfo(App app) => _fLauncherChannel.openAppInfo(app.packageName);

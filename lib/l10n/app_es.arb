@@ -2,6 +2,7 @@
     "aboutFlauncher": "Acerca de FLauncher",
     "addCategory": "Agregar categoría",
     "addSection": "Agregar sección",
+    "addToFavorites": "Agregar a favoritos",
     "alphabetical": "Alfabético",
     "appCardHighlightAnimation": "Resaltar aplicaciones",
     "appInfo": "Datos de la aplicación",
@@ -41,6 +42,7 @@
             }
         }
     },
+    "favoriteApplications": "Favoritos",
     "forceGridLayout": "Mostrar siempre las aplicaciones en cuadrícula",
     "formattedDate": "Fecha con formato: {dateString}",
     "@formattedDate": {
@@ -90,6 +92,7 @@
             "name": { "type": "String" }
         }
     },
+    "removeFromFavorites": "Quitar de favoritos",
     "renameCategory": "Renombrar categoría",
     "reorder": "Reordenar",
     "row": "Fila",
@@ -103,6 +106,7 @@
     "settings": "Ajustes",
     "show": "Mostrar",
     "showCategoryTitles": "Mostrar títulos de categorías",
+    "showFavoriteApplications": "Mostrar aplicaciones favoritas",
     "showRecentApplications": "Mostrar aplicaciones recientes",
     "sort": "Orden",
     "systemSettings": "Ajustes del sistema",
