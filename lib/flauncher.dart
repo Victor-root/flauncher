@@ -74,7 +74,11 @@ class FLauncher extends StatelessWidget {
                   builder: (context, appsService, _) {
                     if (appsService.initialized) {
                       return SingleChildScrollView(
-                        child: _sections(appsService.launcherSections, appsService.recentApplications)
+                        child: Selector<SettingsService, bool>(
+                          selector: (_, settingsService) => settingsService.forceGridLayout,
+                          builder: (_, forceGridLayout, __) => _sections(
+                              appsService.launcherSections, appsService.recentApplications, forceGridLayout),
+                        ),
                       );
                     }
                     else {
@@ -90,7 +94,7 @@ class FLauncher extends StatelessWidget {
     )
   );
 
-  Widget _sections(List<LauncherSection> sections, List<App> recentApplications) => Column(
+  Widget _sections(List<LauncherSection> sections, List<App> recentApplications, bool forceGridLayout) => Column(
     children: [
       Selector<SettingsService, bool>(
         selector: (_, settingsService) => settingsService.showRecentApplications,
@@ -111,7 +115,8 @@ class FLauncher extends StatelessWidget {
         }
 
         Category category = section as Category;
-        switch (category.type) {
+        CategoryType effectiveType = forceGridLayout ? CategoryType.grid : category.type;
+        switch (effectiveType) {
           case CategoryType.row:
             categoryWidget = CategoryRow(
                 key: sectionKey,

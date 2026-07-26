@@ -56,7 +56,7 @@ class RecentApplicationsRow extends StatelessWidget {
           },
         ),
         Selector<SettingsService, bool>(
-          selector: (context, service) => service.recentApplicationsGridLayout,
+          selector: (context, service) => service.forceGridLayout,
           builder: (context, gridLayout, _) => gridLayout ? _grid() : _carousel(),
         ),
       ],

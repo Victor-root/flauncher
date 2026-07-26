@@ -41,6 +41,7 @@
             }
         }
     },
+    "forceGridLayout": "Mostrar siempre las aplicaciones en cuadrícula",
     "formattedDate": "Fecha con formato: {dateString}",
     "@formattedDate": {
         "placeholders": {
@@ -83,7 +84,6 @@
     "overscanSmall": "Pequeño",
     "picture": "Imagen",
     "recentApplications": "Aplicaciones recientes",
-    "recentApplicationsGridLayout": "Mostrar las aplicaciones recientes en cuadrícula",
     "removeFrom": "Remover de {name}",
     "@removeFrom": {
         "placeholders": {
