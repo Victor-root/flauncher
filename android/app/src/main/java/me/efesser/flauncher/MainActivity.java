@@ -28,6 +28,7 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Process;
 import android.provider.Settings;
 import android.util.Pair;
 
@@ -300,8 +301,18 @@ public class MainActivity extends FlutterActivity
 
     private byte[] renderApplicationImage(PackageManager packageManager, String packageName, String type) {
         try {
-            ApplicationInfo info = packageManager.getApplicationInfo(packageName, 0);
-            Drawable drawable = type.equals("banner") ? info.loadBanner(packageManager) : info.loadIcon(packageManager);
+            Drawable drawable;
+            if (type.equals("banner")) {
+                ApplicationInfo info = packageManager.getApplicationInfo(packageName, 0);
+                drawable = info.loadBanner(packageManager);
+            }
+            else {
+                drawable = loadLauncherIcon(packageName);
+                if (drawable == null) {
+                    ApplicationInfo info = packageManager.getApplicationInfo(packageName, 0);
+                    drawable = info.loadIcon(packageManager);
+                }
+            }
 
             if (drawable != null) {
                 return drawableToByteArray(drawable);
@@ -309,6 +320,19 @@ public class MainActivity extends FlutterActivity
         } catch (PackageManager.NameNotFoundException ignored) { }
 
         return new byte[0];
+    }
+
+    // Uses the launcher-specific API so icons are rendered the way a real launcher shows them (correct
+    // adaptive icon shape/density), instead of PackageManager's generic ApplicationInfo#loadIcon.
+    private Drawable loadLauncherIcon(String packageName) {
+        LauncherApps launcherApps = (LauncherApps) getSystemService(Context.LAUNCHER_APPS_SERVICE);
+        List<LauncherActivityInfo> activities = launcherApps.getActivityList(packageName, Process.myUserHandle());
+
+        if (activities.isEmpty()) {
+            return null;
+        }
+
+        return activities.get(0).getIcon(0);
     }
 
     private File imageCacheDirectory() {
@@ -319,8 +343,12 @@ public class MainActivity extends FlutterActivity
         return directory;
     }
 
+    // Bump this when the rendering of a cached image type changes, so previously cached files (which
+    // would otherwise still match their package/updateTime/type key) are ignored and recomputed.
+    private static final int ICON_CACHE_VERSION = 2;
+
     private File imageCacheFile(String packageName, long updateTime, String type) {
-        return new File(imageCacheDirectory(), packageName + "_" + updateTime + "_" + type + ".png");
+        return new File(imageCacheDirectory(), packageName + "_" + updateTime + "_" + ICON_CACHE_VERSION + "_" + type + ".png");
     }
 
     private byte[] readImageCacheFile(File file) {
