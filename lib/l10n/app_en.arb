@@ -83,6 +83,7 @@
     "overscanSmall": "Small",
     "picture": "Picture",
     "recentApplications": "Recent applications",
+    "recentApplicationsGridLayout": "Show recent applications as a grid",
     "removeFrom": "Remove from {name}",
     "@removeFrom": {
         "placeholders": {

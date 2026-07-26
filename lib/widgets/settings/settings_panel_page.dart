@@ -161,6 +161,12 @@ class SettingsPanelPage extends StatelessWidget {
                     title: Text(localizations.showRecentApplications, style: Theme.of(context).textTheme.bodyMedium),
                     secondary: Icon(Icons.history),
                   ),
+                  RoundedSwitchListTile(
+                    value: settingsService.recentApplicationsGridLayout,
+                    onChanged: (value) => settingsService.setRecentApplicationsGridLayout(value),
+                    title: Text(localizations.recentApplicationsGridLayout, style: Theme.of(context).textTheme.bodyMedium),
+                    secondary: Icon(Icons.grid_view),
+                  ),
                   TextButton(
                     child: Row(
                       children: [

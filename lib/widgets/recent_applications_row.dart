@@ -55,26 +55,54 @@ class RecentApplicationsRow extends StatelessWidget {
             return const SizedBox.shrink();
           },
         ),
-        SizedBox(
-          height: Category.RowHeight.toDouble(),
-          child: ListView.builder(
-            padding: const EdgeInsets.all(8),
-            scrollDirection: Axis.horizontal,
-            itemCount: applications.length,
-            itemBuilder: (context, index) => Padding(
-              key: Key("recent_${applications[index].packageName}"),
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: AppCard(
-                category: null,
-                application: applications[index],
-                autofocus: index == 0,
-                onMove: (_) {},
-                onMoveEnd: () {},
-              ),
-            ),
-          ),
+        Selector<SettingsService, bool>(
+          selector: (context, service) => service.recentApplicationsGridLayout,
+          builder: (context, gridLayout, _) => gridLayout ? _grid() : _carousel(),
         ),
       ],
     );
   }
+
+  Widget _carousel() => SizedBox(
+        height: Category.RowHeight.toDouble(),
+        child: ListView.builder(
+          padding: const EdgeInsets.all(8),
+          scrollDirection: Axis.horizontal,
+          itemCount: applications.length,
+          itemBuilder: (context, index) => Padding(
+            key: Key("recent_${applications[index].packageName}"),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: AppCard(
+              category: null,
+              application: applications[index],
+              autofocus: index == 0,
+              onMove: (_) {},
+              onMoveEnd: () {},
+            ),
+          ),
+        ),
+      );
+
+  Widget _grid() => GridView.custom(
+        primary: false,
+        shrinkWrap: true,
+        padding: const EdgeInsets.all(16),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: Category.ColumnsCount,
+          childAspectRatio: 16 / 9,
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 16,
+        ),
+        childrenDelegate: SliverChildBuilderDelegate(
+          childCount: applications.length,
+          (context, index) => AppCard(
+            key: Key("recent_${applications[index].packageName}"),
+            category: null,
+            application: applications[index],
+            autofocus: index == 0,
+            onMove: (_) {},
+            onMoveEnd: () {},
+          ),
+        ),
+      );
 }
